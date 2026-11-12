@@ -30,7 +30,7 @@ researcherIdInput.addEventListener("input", updateStartButton);
 window.addEventListener("pageshow", updateStartButton);
 updateStartButton();
 
-const VIDEO_FOLDER = "https://raw.githubusercontent.com/efosterhanson/CHS_stims/main/Tablet_Study1_Videos/";
+const VIDEO_FOLDER = "./Tablet_Study1_Videos/";
 const HOTSPOT_FEEDBACK_CSS = "background-color: rgba(255, 215, 0, 0.35); border: 4px solid #ffd700; border-radius: 12px;";
 
 class ResearcherReview {
