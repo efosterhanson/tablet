@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Project Sprouts</title>
+    <link rel="manifest" href="manifest.json" />
 
     <link rel="stylesheet" href="https://unpkg.com/jspsych@8.3.0/css/jspsych.css" />
     <script src="https://unpkg.com/jspsych@8.3.0/dist/index.browser.min.js"></script>
@@ -175,17 +176,73 @@
           <a class="admin-link" href="admin/index.html">Researcher tools</a>
         </div>
         <p id="sound-check-status" role="status" style="margin: 16px auto 0;"></p>
-        <audio id="sound-check-audio" src="https://raw.githubusercontent.com/efosterhanson/CHS_stims/main/ProjectSprouts/warmup_trial_correct_audio.mp3" preload="auto"></audio>
+        <p id="offline-status" role="status" style="margin: 16px auto 0;">Preparing study for offline use…</p>
+        <audio id="sound-check-audio" src="Tablet_Study1_Videos/warmup_trial_correct_audio.mp3" preload="auto"></audio>
       </div>
     </main>
 
     <section id="child-start-screen" aria-label="Ready to play" hidden>
-      <img src="https://raw.githubusercontent.com/efosterhanson/CHS_stims/main/Tablet_Study1_Videos/Ready.png" alt="Kid Lab chameleon saying: Ready? Let's play!" />
+      <img src="Tablet_Study1_Videos/Ready.png" alt="Kid Lab chameleon saying: Ready? Let's play!" />
       <button id="child-start-button" type="button">START</button>
     </section>
 
     <div id="study-target" hidden></div>
 
+    <script src="offline-assets.js"></script>
     <script src="experiment.js"></script>
+    <script>
+      (async () => {
+        const status = document.getElementById("offline-status");
+        if (!("serviceWorker" in navigator) || !("caches" in window)) {
+          status.textContent = "Offline storage is unavailable in this browser.";
+          return;
+        }
+
+        async function checkReady() {
+          if (!navigator.serviceWorker.controller) return;
+          const cache = await caches.open(STUDY_CACHE_NAME);
+          const required = [
+            ...STUDY_LOCAL_FILES.map((path) => new URL(path, location.href).href),
+            ...STUDY_CDN_FILES,
+          ];
+          for (const url of required) {
+            if (!(await cache.match(url))) return;
+          }
+          window.studyOfflineReady = true;
+          status.textContent = "Ready for offline use.";
+          updateStartButton();
+        }
+
+        try {
+          const registration = await navigator.serviceWorker.register("./sw.js");
+          navigator.serviceWorker.addEventListener("controllerchange", checkReady);
+          registration.addEventListener("updatefound", () => {
+            registration.installing?.addEventListener("statechange", (event) => {
+              if (event.target.state === "redundant") {
+                status.textContent = "Offline preparation failed. Connect to Wi-Fi and reload.";
+              } else {
+                checkReady();
+              }
+            });
+          });
+          await registration.update();
+          await checkReady();
+          // The install can be downloading videos while this page is open.
+          if (!window.studyOfflineReady) {
+            const worker = registration.installing || registration.waiting;
+            worker?.addEventListener("statechange", (event) => {
+              if (event.target.state === "redundant") {
+                status.textContent = "Offline preparation failed. Connect to Wi-Fi and reload.";
+              } else {
+                checkReady();
+              }
+            });
+          }
+        } catch (error) {
+          console.error("Offline preparation failed", error);
+          status.textContent = "Offline preparation failed. Connect to Wi-Fi and reload.";
+        }
+      })();
+    </script>
   </body>
 </html>

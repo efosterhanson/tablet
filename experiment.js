@@ -22,7 +22,7 @@ soundCheckButton.addEventListener("click", async () => {
 });
 
 function updateStartButton() {
-  startButton.disabled = !subjectIdInput.value.trim() || !researcherIdInput.value.trim();
+  startButton.disabled = !window.studyOfflineReady || !subjectIdInput.value.trim() || !researcherIdInput.value.trim();
 }
 
 subjectIdInput.addEventListener("input", updateStartButton);
