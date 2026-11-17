@@ -209,7 +209,7 @@
             if (!(await cache.match(url))) return;
           }
           window.studyOfflineReady = true;
-          status.textContent = "Ready for offline use.";
+          status.hidden = true;
           updateStartButton();
         }
 
@@ -225,7 +225,16 @@
               }
             });
           });
-          await registration.update();
+          await checkReady();
+          // An update check needs the network, but an already cached study does not.
+          try {
+            await registration.update();
+          } catch (error) {
+            console.warn("Could not check for a study update", error);
+            if (!window.studyOfflineReady && !registration.installing) {
+              status.textContent = "Offline preparation failed. Connect to Wi-Fi and reload.";
+            }
+          }
           await checkReady();
           // The install can be downloading videos while this page is open.
           if (!window.studyOfflineReady) {
