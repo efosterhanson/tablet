@@ -1,3 +1,4 @@
+// Keep the study available when an update check cannot reach the network.
 importScripts("./offline-assets.js");
 
 const CACHE_NAME = self.STUDY_CACHE_NAME;
