@@ -1,5 +1,5 @@
 // Files needed by every possible study condition, including optional retry trials.
-self.STUDY_CACHE_NAME = "jspsych-offline-v3";
+self.STUDY_CACHE_NAME = "jspsych-offline-v4";
 self.STUDY_VIDEO_FILES = [
   "Ready.png", "YES.png", "NO.png", "age.m4v", "hello2.mp4",
   "play_for_real.mp4", "mem_intro.mp4", "thanksforplaying_audio.mp4",
