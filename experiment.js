@@ -283,7 +283,8 @@ childStartButton.addEventListener("click", async () => {
     },
   };
 
-  const sarcaCondition = Math.random() < 0.5 ? "A" : "B";
+  // Only the bee (B) version has the four sarca knowledge videos.
+  const sarcaCondition = "B";
   const sarcaVersion = Math.random() < 0.5 ? 1 : 2;
   const glorpVersion = Math.random() < 0.5 ? 1 : 2;
   const closenessVersion = Math.random() < 0.5 ? 1 : 2;
@@ -300,7 +301,7 @@ childStartButton.addEventListener("click", async () => {
     area_video_version: areaVersion,
   });
 
-  const sarcaChoices = sarcaCondition === "A" ? ["ant", "grass"] : ["bee", "grass"];
+  const sarcaChoices = ["bee", "grass"];
   const sarcaLeft = sarcaVersion === 1 ? sarcaChoices[0] : sarcaChoices[1];
   const sarcaRight = sarcaVersion === 1 ? sarcaChoices[1] : sarcaChoices[0];
   const glorpLeft = glorpVersion === 1 ? "oak_tree" : "kangaroo";
@@ -365,28 +366,25 @@ childStartButton.addEventListener("click", async () => {
   };
 
 
-  jsPsych.run([
-    // Trial 1
-    videoTrial("hello2.mp4", "hello_intro"),
-    firstWarmup,
-    retryIfNeeded,
-    //videoTrial("warmup_end.mp4", "warmup_end")
-    videoTrial("play_for_real.mp4", "play_for_real"),
-    ageQuestion,
+  // Shuffled per child; trial_index in the data shows the order each child got.
+  const shuffledBlock = (block, trials) => ({
+    timeline: trials.map((trial) => ({ ...trial, data: { ...trial.data, block } })),
+    randomize_order: true,
+  });
+
+  const block1 = shuffledBlock(1, [
+    yesNoQuestion("kind_sarca_B.mp4", "kind_sarca_bee", trial4Version),
+    yesNoQuestion("eco_sarca_B.mp4", "eco_sarca_bee", trial4Version),
+    yesNoQuestion("kind_sarca_grass.mp4", "kind_sarca_grass", trial4Version),
+    yesNoQuestion("eco_sarca_grass.mp4", "eco_sarca_grass", trial4Version),
+  ]);
+
+  const block2 = shuffledBlock(2, [
     twoChoiceQuestion(`ind_sarca_${sarcaCondition}_v${sarcaVersion}.m4v`, "sarca", sarcaLeft, sarcaRight),
     twoChoiceQuestion(`glorp_v${glorpVersion}.mp4`, "glorp", glorpLeft, glorpRight),
-    // Trial 2
+    yesNoQuestion(`eco_glorp_v${trial4Version}.mp4`, "eco_glorp", trial4Version),
+    yesNoQuestion(`kind_glorp_v${trial4Version}.mp4`, "kind_glorp", trial4Version),
     closenessQuestion,
-    // Trial 3
-    videoTrial(`practice_warmup_v${trial3Version}.mp4`, "practice_warmup_intro"),
-    scaleQuestion(`practice_birds_fly_v${trial3Version}.m4v`, "practice_birds_fly"),
-    videoTrial(`practice_birds_fly_feedback_v${trial3Version}.mp4`, "practice_birds_fly_feedback"),
-    scaleQuestion(`practice_animals_lay_eggs_v${trial3Version}.m4v`, "practice_animals_lay_eggs"),
-    videoTrial(`practice_animals_lay_eggs_feedback_v${trial3Version}.mp4`, "practice_animals_lay_eggs_feedback"),
-    scaleQuestion(`practice_bird_car_v${trial3Version}.m4v`, "practice_bird_car"),
-    videoTrial(`practice_bird_car_feedback_v${trial3Version}.mp4`, "practice_bird_car_feedback"),
-    videoTrial("play_for_real.mp4", "attitude_intro"),
-    // Tree Personhood questions
     scaleQuestion(`trees_thoughts_v${trial3Version}.mp4`, "trees_thoughts"),
     scaleQuestion(`trees_feelings_v${trial3Version}.mp4`, "trees_feelings"),
     scaleQuestion(`trees_grateful_v${trial3Version}.mp4`, "trees_grateful"),
@@ -401,12 +399,29 @@ childStartButton.addEventListener("click", async () => {
     scaleQuestion(`exp_time_v${trial3Version}.m4v`, "time"),
     scaleQuestion(`exp_books_shows_v${trial3Version}.m4v`, "books"),
     areaQuestion,
-    // Trial 4
+  ]);
+
+  jsPsych.run([
+    // Fixed start
+    videoTrial("hello2.mp4", "hello_intro"),
+    firstWarmup,
+    retryIfNeeded,
+    videoTrial("play_for_real.mp4", "play_for_real"),
+    ageQuestion,
+    // Block 1: sarca triad knowledge questions (yes/no)
     videoTrial("mem_intro.mp4", "mem_intro"),
-    yesNoQuestion(`eco_sarca_${sarcaCondition}_v${trial4Version}.mp4`, "eco_sarca", trial4Version),
-    yesNoQuestion(`eco_glorp_v${trial4Version}.mp4`, "eco_glorp", trial4Version),
-    yesNoQuestion(`kind_sarca_v${trial4Version}.mp4`, "kind_sarca", trial4Version),
-    yesNoQuestion(`kind_glorp_v${trial4Version}.mp4`, "kind_glorp", trial4Version),
+    block1,
+    // Practice teaches the 3-choice scale before block 2
+    videoTrial(`practice_warmup_v${trial3Version}.mp4`, "practice_warmup_intro"),
+    scaleQuestion(`practice_birds_fly_v${trial3Version}.m4v`, "practice_birds_fly"),
+    videoTrial(`practice_birds_fly_feedback_v${trial3Version}.mp4`, "practice_birds_fly_feedback"),
+    scaleQuestion(`practice_animals_lay_eggs_v${trial3Version}.m4v`, "practice_animals_lay_eggs"),
+    videoTrial(`practice_animals_lay_eggs_feedback_v${trial3Version}.mp4`, "practice_animals_lay_eggs_feedback"),
+    scaleQuestion(`practice_bird_car_v${trial3Version}.m4v`, "practice_bird_car"),
+    videoTrial(`practice_bird_car_feedback_v${trial3Version}.mp4`, "practice_bird_car_feedback"),
+    videoTrial("play_for_real.mp4", "attitude_intro"),
+    // Block 2: everything else
+    block2,
     // Ending
     videoTrial("thanksforplaying_audio.mp4", "study_end"),
     { type: ResearcherReview, data: { trial_id: "researcher_review" } },

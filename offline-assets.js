@@ -1,12 +1,13 @@
 // Files needed by every possible study condition, including optional retry trials.
-self.STUDY_CACHE_NAME = "jspsych-offline-v4";
+self.STUDY_CACHE_NAME = "jspsych-offline-v5";
 self.STUDY_VIDEO_FILES = [
   "Ready.png", "YES.png", "NO.png", "age.m4v", "hello2.mp4",
   "play_for_real.mp4", "mem_intro.mp4", "thanksforplaying_audio.mp4",
   "warmup_trial_correct_audio.mp3",
+  "kind_sarca_B.mp4", "eco_sarca_B.mp4", "kind_sarca_grass.mp4", "eco_sarca_grass.mp4",
   ...[1, 2].flatMap((v) => [
     `warmup_v${v}.mp4`, `warmup_redo_v${v}.mp4`,
-    ...["A", "B"].map((c) => `ind_sarca_${c}_v${v}.m4v`),
+    `ind_sarca_B_v${v}.m4v`,
     `glorp_v${v}.mp4`, `closenesstonature_affect_v${v}.m4v`,
     `practice_warmup_v${v}.mp4`,
     `practice_birds_fly_v${v}.m4v`,
@@ -20,8 +21,7 @@ self.STUDY_VIDEO_FILES = [
     ...["tree_protect", "tree_important", "bug_protect", "bug_important"]
       .map((name) => `mor_${name}_v${v}.m4v`),
     `exp_time_v${v}.m4v`, `exp_books_shows_v${v}.m4v`, `area_v${v}.mp4`,
-    ...["A", "B"].map((c) => `eco_sarca_${c}_v${v}.mp4`),
-    `eco_glorp_v${v}.mp4`, `kind_sarca_v${v}.mp4`, `kind_glorp_v${v}.mp4`,
+    `eco_glorp_v${v}.mp4`, `kind_glorp_v${v}.mp4`,
   ]),
 ].map((name) => `Tablet_Study1_Videos/${name}`);
 
